@@ -14,8 +14,8 @@
     <div class="no-print toolbar">
         <!-- Zpráva buněk -->
         <div class="toolbar-group">
-            <button onclick="addCell()" class="btn-primary">+ Přidat</button>
-            <button onclick="removeLastCell()" class="btn-danger">- Odebrat</button>
+            <button type="button" onclick="addCell()" class="btn-primary">+ Přidat</button>
+            <button type="button" onclick="removeLastCell()" class="btn-danger">- Odebrat</button>
         </div>
 
         <!-- Font -->
@@ -38,35 +38,51 @@
         <!-- Velikost textu -->
         <div class="toolbar-group">
             <label>Velikost:</label>
-            <button onclick="changeFontSize(-1)">-</button>
+            <button type="button" onclick="changeFontSize(-1)">-</button>
             <span class="value-display" id="size-display">14 pt</span>
-            <button onclick="changeFontSize(1)">+</button>
+            <button type="button" onclick="changeFontSize(1)">+</button>
         </div>
 
         <!-- Okraje -->
         <div class="toolbar-group">
             <label>Okraje:</label>
-            <button onclick="changePadding(-1)">-</button>
+            <button type="button" onclick="changePadding(-1)">-</button>
             <span class="value-display" id="padding-display">6 mm</span>
-            <button onclick="changePadding(1)">+</button>
+            <button type="button" onclick="changePadding(1)">+</button>
+        </div>
+
+        <!-- Stav -->
+        <div class="toolbar-group">
+            <button type="button" onclick="saveStateToFile()" class="btn-secondary">Uložit</button>
+            <button type="button" onclick="openStateFilePicker()" class="btn-secondary">Načíst</button>
+            <button type="button" onclick="resetApp()" class="btn-danger">Reset</button>
+            <input type="file" id="state-file-input" accept="application/json,.json" hidden>
         </div>
 
         <!-- Tisk -->
         <div class="toolbar-group">
-            <button onclick="window.print()" class="btn-primary" style="font-size: 16px;">🖨️ Tisk</button>
+            <button type="button" onclick="window.print()" class="btn-primary btn-print">Tisk</button>
+        </div>
+
+        <div class="toolbar-meta">
+            <div class="toolbar-status" id="status-message" aria-live="polite">Připraveno k úpravám.</div>
+            <div class="app-version" id="app-version" aria-label="Verze aplikace">Verze</div>
         </div>
     </div>
 
-    <!-- Stránka A4 -->
-    <div class="page-a4" id="grid">
-        <div class="cell" contenteditable="true">Krátký text</div>
-        <div class="cell" contenteditable="true">Středně dlouhý štítek</div>
-        <div class="cell" contenteditable="true">Další položka</div>
-        <div class="cell" contenteditable="true">Tady je velmi dlouhý text, který otestuje zalomení</div>
-        <div class="cell" contenteditable="true">A zpět krátký</div>
+    <div class="page-preview">
+        <!-- Stránka A4 -->
+        <div class="page-a4" id="grid">
+            <div class="cell" contenteditable="true">Krátký text</div>
+            <div class="cell" contenteditable="true">Středně dlouhý štítek</div>
+            <div class="cell" contenteditable="true">Další položka</div>
+            <div class="cell" contenteditable="true">Tady je velmi dlouhý text, který otestuje zalomení</div>
+            <div class="cell" contenteditable="true">A zpět krátký</div>
+        </div>
     </div>
 
     <!-- Propojení na externí JavaScript (musí být na konci body, aby se načetl až po vykreslení HTML) -->
+    <script src="js/version.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
