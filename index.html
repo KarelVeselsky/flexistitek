@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexiŠtítek</title>
+
+    <!-- Propojení na externí CSS soubor -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Ovládací panel -->
+    <div class="no-print toolbar">
+        <!-- Zpráva buněk -->
+        <div class="toolbar-group">
+            <button onclick="addCell()" class="btn-primary">+ Přidat</button>
+            <button onclick="removeLastCell()" class="btn-danger">- Odebrat</button>
+        </div>
+
+        <!-- Font -->
+        <div class="toolbar-group">
+            <label for="font-select">Font:</label>
+            <select id="font-select" onchange="updateFont()">
+                <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="Tahoma, sans-serif">Tahoma</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="Impact, sans-serif">Impact</option>
+                <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+            </select>
+        </div>
+
+        <!-- Velikost textu -->
+        <div class="toolbar-group">
+            <label>Velikost:</label>
+            <button onclick="changeFontSize(-1)">-</button>
+            <span class="value-display" id="size-display">14 pt</span>
+            <button onclick="changeFontSize(1)">+</button>
+        </div>
+
+        <!-- Okraje -->
+        <div class="toolbar-group">
+            <label>Okraje:</label>
+            <button onclick="changePadding(-1)">-</button>
+            <span class="value-display" id="padding-display">6 mm</span>
+            <button onclick="changePadding(1)">+</button>
+        </div>
+
+        <!-- Tisk -->
+        <div class="toolbar-group">
+            <button onclick="window.print()" class="btn-primary" style="font-size: 16px;">🖨️ Tisk</button>
+        </div>
+    </div>
+
+    <!-- Stránka A4 -->
+    <div class="page-a4" id="grid">
+        <div class="cell" contenteditable="true">Krátký text</div>
+        <div class="cell" contenteditable="true">Středně dlouhý štítek</div>
+        <div class="cell" contenteditable="true">Další položka</div>
+        <div class="cell" contenteditable="true">Tady je velmi dlouhý text, který otestuje zalomení</div>
+        <div class="cell" contenteditable="true">A zpět krátký</div>
+    </div>
+
+    <!-- Propojení na externí JavaScript (musí být na konci body, aby se načetl až po vykreslení HTML) -->
+    <script src="js/app.js"></script>
+</body>
+</html>
