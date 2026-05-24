@@ -21,6 +21,8 @@ const INITIAL_STATE = {
 const MIN_FONT_SIZE = 6;
 const MIN_PADDING = 0;
 const DEFAULT_NEW_CELL_TEXT = 'Nový štítek';
+const PRINT_PAGE_HEIGHT_MM = 276;
+const PRINT_OVERFLOW_TOLERANCE_PX = 2;
 
 const grid = document.getElementById('grid');
 const root = document.documentElement;
@@ -29,6 +31,7 @@ const sizeDisplay = document.getElementById('size-display');
 const paddingDisplay = document.getElementById('padding-display');
 const stateFileInput = document.getElementById('state-file-input');
 const statusMessage = document.getElementById('status-message');
+const printWarning = document.getElementById('print-warning');
 const appVersion = document.getElementById('app-version');
 
 let currentFontSize = INITIAL_STATE.fontSize;
@@ -37,6 +40,46 @@ let currentPadding = INITIAL_STATE.padding;
 function setStatus(message, state = 'info') {
     statusMessage.textContent = message;
     statusMessage.dataset.state = state;
+}
+
+function setPrintWarning(message = '') {
+    printWarning.textContent = message;
+}
+
+function measureMillimeters(mm) {
+    const probe = document.createElement('div');
+    probe.style.position = 'absolute';
+    probe.style.visibility = 'hidden';
+    probe.style.pointerEvents = 'none';
+    probe.style.height = mm + 'mm';
+    probe.style.width = '1mm';
+    document.body.appendChild(probe);
+    const pixels = probe.getBoundingClientRect().height;
+    probe.remove();
+    return pixels;
+}
+
+function estimatePrintPages() {
+    const pageHeightPx = measureMillimeters(PRINT_PAGE_HEIGHT_MM);
+    const contentHeightPx = Math.max(grid.scrollHeight, Math.ceil(grid.getBoundingClientRect().height));
+
+    if (!pageHeightPx) {
+        return 1;
+    }
+
+    return Math.max(1, Math.ceil((contentHeightPx - PRINT_OVERFLOW_TOLERANCE_PX) / pageHeightPx));
+}
+
+function refreshPrintWarning() {
+    const estimatedPages = estimatePrintPages();
+
+    if (estimatedPages > 1) {
+        setPrintWarning('Varování: obsah se nevejde na jednu A4. Odhad tisku je ' + estimatedPages + ' strany.');
+        return estimatedPages;
+    }
+
+    setPrintWarning('');
+    return estimatedPages;
 }
 
 function sanitizeFont(font) {
@@ -64,6 +107,7 @@ function renderCells(cells) {
     cells.forEach((content) => {
         grid.appendChild(createCell(content));
     });
+    refreshPrintWarning();
 }
 
 function getAppState() {
@@ -131,6 +175,7 @@ function applyAppState(state, options = {}) {
 function addCell() {
     const newCell = createCell();
     grid.appendChild(newCell);
+    refreshPrintWarning();
     setStatus('Přidán nový štítek. Nezapomeňte změny uložit.', 'dirty');
     newCell.focus();
 }
@@ -139,6 +184,7 @@ function removeLastCell() {
     const cells = grid.querySelectorAll('.cell');
     if (cells.length > 1) {
         cells[cells.length - 1].remove();
+        refreshPrintWarning();
         setStatus('Poslední štítek byl odebrán.', 'dirty');
         return;
     }
@@ -152,6 +198,7 @@ function addListenersToCell(cell) {
     });
 
     cell.addEventListener('input', () => {
+        refreshPrintWarning();
         setStatus('Máte neuložené změny.', 'dirty');
     });
 
@@ -169,6 +216,7 @@ function updateFont() {
         fontSize: currentFontSize,
         padding: currentPadding
     });
+    refreshPrintWarning();
     setStatus('Font byl změněn. Nezapomeňte změny uložit.', 'dirty');
 }
 
@@ -178,6 +226,7 @@ function changeFontSize(delta) {
         fontSize: currentFontSize + delta,
         padding: currentPadding
     });
+    refreshPrintWarning();
     setStatus('Velikost textu byla upravena.', 'dirty');
 }
 
@@ -187,7 +236,27 @@ function changePadding(delta) {
         fontSize: currentFontSize,
         padding: currentPadding + delta
     });
+    refreshPrintWarning();
     setStatus('Okraje štítků byly upraveny.', 'dirty');
+}
+
+function triggerPrint() {
+    const estimatedPages = refreshPrintWarning();
+
+    if (estimatedPages > 1) {
+        const confirmed = window.confirm(
+            'Obsah přesahuje jednu stranu A4. Odhad tisku je ' + estimatedPages + ' strany. ' +
+            'Při tisku bude vytištěna jen první strana A4. Chcete pokračovat?'
+        );
+
+        if (!confirmed) {
+            setStatus('Tisk byl zrušen. Upravte obsah tak, aby se vešel na jednu A4.', 'error');
+            return;
+        }
+    }
+
+    setStatus('Otevírám tiskový náhled.', 'info');
+    window.print();
 }
 
 function buildFileName() {
@@ -267,6 +336,7 @@ function initializeApp() {
     stateFileInput.addEventListener('change', handleStateFileSelection);
     appVersion.textContent = 'Verze ' + APP_VERSION;
     document.title = 'FlexiŠtítek v' + APP_VERSION;
+    refreshPrintWarning();
     setStatus('Připraveno k úpravám.', 'info');
 }
 

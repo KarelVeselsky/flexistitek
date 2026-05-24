@@ -1,8 +1,12 @@
 # FlexiStitek
 
-Aktualni verze: `1.0.0`
+Aktualni verze: `1.1.0`
 
 Posledni release notes jsou v souboru `CHANGELOG.md`.
+
+Verejna aplikace: `https://karelveselsky.github.io/flexistitek/`
+
+Projekt je publikovany jako staticky web pres GitHub Pages.
 
 FlexiStitek je jednoducha staticka webova aplikace pro pripravu a tisk textovych stitku na format A4. Bezi primo v prohlizeci, nevyzaduje backend ani build krok a je vhodna pro rychle vytvareni a upravu stitku pred tiskem.
 
@@ -52,7 +56,7 @@ Po otevreni aplikace se zobrazi nahled stranky A4 a panel s ovladacimi prvky.
 - `Ulozit`: exportuje aktualni podobu stitku a nastaveni do noveho JSON souboru
 - `Nacist`: importuje drive ulozeny JSON soubor a obnovi jeho obsah i nastaveni
 - `Reset`: vrati aplikaci do puvodniho stavu vcetne ukazkovych stitku a vychozich hodnot
-- `Tisk`: vyvola nativni dialog pro tisk v prohlizeci
+- `Tisk`: zkontroluje, jestli se obsah vejde na jednu A4, pripadne zobrazi varovani, a pak vyvola nativni dialog pro tisk v prohlizeci
 
 ### Editace stitku
 
@@ -75,6 +79,8 @@ Aplikace je pripravena pro tisk na vysku ve formatu A4.
 - tiskove okraje jsou nastavene na `10 mm`
 - ovladaci panel se pri tisku skryje
 - tiskova plocha odpovida vnitrni oblasti stranky po odecteni okraju
+- tiskovy layout je upraveny tak, aby byl stabilni pro jednu stranu A4 bez zbytecneho preteceni do druhe strany
+- pokud obsah presahuje jednu stranu A4, aplikace zobrazi varovani v panelu i potvrzeni pred tiskem
 
 Aktualni rozlozeni pouziva flexibilni zalamovani bunek v ramci plochy A4. Jednotlive bunky maji pevne nastavenou vysku `17 mm` a sirka se odviji od obsahu textu, nastaveneho fontu a vnitrnich okraju.
 
@@ -122,6 +128,7 @@ Diky tomu se globalni vizualni nastaveni meni okamzite bez nutnosti prepisovat s
 - aplikace neobsahuje export do PDF, vyuziva standardni tisk prohlizece
 - odebirani funguje pouze na posledni bunku
 - neexistuje samostatne nastaveni rozmeru bunek nebo poctu sloupcu
+- pri pretizeni obsahu nad jednu A4 aplikace varuje, ale stale je na uzivateli, aby tiskovy obsah upravil na pozadovanou podobu
 - vysledny tisk se muze mirne lisit podle konkretniho prohlizece a tiskarny
 
 ## Jak projekt upravovat

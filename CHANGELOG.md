@@ -2,6 +2,15 @@
 
 Vsechny vyznamne zmeny v projektu budou evidovane v tomto souboru.
 
+## 1.1.0 - 2026-05-24
+
+### Release Notes
+
+- upraven tiskovy layout tak, aby se A4 vystup nepocital na hranu a nahled bezne nekoncil na dvou strankach
+- pridano prubezne varovani, kdyz obsah presahuje jednu stranu A4
+- tlacitko Tisk novne pred otevrenim nahledu potvrzuje, kdyz odhad tisku vychazi na vice stran
+- projekt publikovan na GitHub Pages
+
 ## 1.0.0 - 2026-05-23
 
 ### Release Notes

@@ -61,11 +61,14 @@
 
         <!-- Tisk -->
         <div class="toolbar-group">
-            <button type="button" onclick="window.print()" class="btn-primary btn-print">Tisk</button>
+            <button type="button" onclick="triggerPrint()" class="btn-primary btn-print">Tisk</button>
         </div>
 
         <div class="toolbar-meta">
-            <div class="toolbar-status" id="status-message" aria-live="polite">Připraveno k úpravám.</div>
+            <div class="toolbar-feedback">
+                <div class="toolbar-status" id="status-message" aria-live="polite">Připraveno k úpravám.</div>
+                <div class="print-warning" id="print-warning" aria-live="polite"></div>
+            </div>
             <div class="app-version" id="app-version" aria-label="Verze aplikace">Verze</div>
         </div>
     </div>

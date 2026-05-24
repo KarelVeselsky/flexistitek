@@ -34,6 +34,8 @@ body {
     body {
         background: white;
         padding: 0;
+        min-height: auto;
+        display: block;
     }
 
     .no-print {
@@ -41,13 +43,21 @@ body {
     }
 
     .page-preview {
+        display: block;
+        width: auto;
         overflow: visible;
         padding: 0;
     }
 
     .page-a4 {
+        width: 190mm;
+        height: 276mm;
+        min-height: 276mm;
+        overflow: hidden;
         box-shadow: none !important;
         margin: 0 !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
     }
 }
 
@@ -143,6 +153,23 @@ body {
     min-height: 22px;
     font-size: 14px;
     color: var(--text-muted);
+}
+
+.toolbar-feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.print-warning {
+    min-height: 18px;
+    font-size: 13px;
+    color: #8a4b00;
+}
+
+.print-warning:empty {
+    display: none;
 }
 
 .toolbar-meta {
