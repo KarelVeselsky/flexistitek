@@ -1,4 +1,4 @@
 window.APP_CONFIG = Object.freeze({
-    version: '1.3.0',
+    version: '1.4.0',
     exportSchemaVersion: 1
 });

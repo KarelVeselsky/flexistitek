@@ -104,6 +104,21 @@ function extractCellText(cell) {
     return clone.textContent.replace(/\u00A0/g, ' ').trim();
 }
 
+function selectAllCellText(cell) {
+    const sel = window.getSelection();
+    if (!sel) return;
+    sel.removeAllRanges();
+    const range = document.createRange();
+    const deleteBtn = cell.querySelector('.cell-delete-btn');
+    if (deleteBtn) {
+        range.setStart(cell, 0);
+        range.setEndBefore(deleteBtn);
+    } else {
+        range.selectNodeContents(cell);
+    }
+    sel.addRange(range);
+}
+
 function createCell(content = DEFAULT_NEW_CELL_TEXT) {
     const cell = document.createElement('div');
     cell.className = 'cell';
@@ -134,7 +149,23 @@ function renderCells(cells) {
     cells.forEach((content) => {
         grid.appendChild(createCell(content));
     });
+    ensureFloatAddButton();
     refreshPrintWarning();
+}
+
+function ensureFloatAddButton() {
+    let btn = grid.querySelector('.cell-add-float');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cell-add-float no-print';
+        btn.setAttribute('contenteditable', 'false');
+        btn.title = 'Přidat nový štítek';
+        btn.setAttribute('aria-label', 'Přidat nový štítek');
+        btn.textContent = '+ Přidat';
+        btn.addEventListener('click', addCell);
+    }
+    grid.appendChild(btn);
 }
 
 function getAppState() {
@@ -210,10 +241,19 @@ function applyAppState(state, options = {}) {
 // --- Správa buněk ---
 function addCell() {
     const newCell = createCell();
-    grid.appendChild(newCell);
+    const floatBtn = grid.querySelector('.cell-add-float');
+    if (floatBtn) {
+        grid.insertBefore(newCell, floatBtn);
+    } else {
+        grid.appendChild(newCell);
+    }
     refreshPrintWarning();
     setStatus('Přidán nový štítek. Nezapomeňte změny uložit.', 'dirty');
     newCell.focus();
+    setTimeout(() => {
+        selectAllCellText(newCell);
+        newCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 0);
 }
 
 function removeLastCell() {
@@ -244,6 +284,20 @@ function deleteCell(cell) {
 function addListenersToCell(cell, deleteBtn) {
     cell.addEventListener('focus', () => {
         setStatus('Upravujete obsah štítku.', 'info');
+    });
+
+    cell.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const cells = Array.from(grid.querySelectorAll('.cell'));
+            const idx = cells.indexOf(cell);
+            const targetIdx = e.shiftKey ? idx - 1 : idx + 1;
+            if (targetIdx >= 0 && targetIdx < cells.length) {
+                const target = cells[targetIdx];
+                target.focus();
+                setTimeout(() => selectAllCellText(target), 0);
+            }
+        }
     });
 
     cell.addEventListener('input', () => {

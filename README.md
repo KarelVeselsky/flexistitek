@@ -1,10 +1,10 @@
 # FlexiŠtítek
 
-Aktuální verze: `1.3.0`
+Aktuální verze: `1.4.0`
 
 Poslední release notes jsou v souboru `CHANGELOG.md`.
 
-Veřejná aplikace: `https://karelveselsky.github.io/flexistitek/`
+Veřejná aplikace: [https://karelveselsky.github.io/flexistitek/](https://karelveselsky.github.io/flexistitek/)
 
 Projekt je publikovaný jako statický web přes GitHub Pages.
 
