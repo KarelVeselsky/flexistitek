@@ -2,8 +2,12 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlexiŠtítek – jednoduchá aplikace pro přípravu a tisk textových štítků ve formátu A4.">
+    <meta name="theme-color" content="#0f6cbd">
     <title>FlexiŠtítek</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
     <!-- Propojení na externí CSS soubor -->
     <link rel="stylesheet" href="css/style.css">
@@ -11,17 +15,17 @@
 <body>
 
     <!-- Ovládací panel -->
-    <div class="no-print toolbar">
+    <div class="no-print toolbar" role="toolbar" aria-label="Ovládací panel">
         <!-- Zpráva buněk -->
         <div class="toolbar-group">
-            <button type="button" onclick="addCell()" class="btn-primary">+ Přidat</button>
-            <button type="button" onclick="removeLastCell()" class="btn-danger">- Odebrat</button>
+            <button type="button" id="btn-add" class="btn-primary" title="Přidat nový štítek">+ Přidat</button>
+            <button type="button" id="btn-remove" class="btn-danger" title="Odebrat poslední štítek">- Odebrat</button>
         </div>
 
         <!-- Font -->
         <div class="toolbar-group">
             <label for="font-select">Font:</label>
-            <select id="font-select" onchange="updateFont()">
+            <select id="font-select">
                 <option value="'Segoe UI', sans-serif">Segoe UI</option>
                 <option value="Arial, sans-serif">Arial</option>
                 <option value="Verdana, sans-serif">Verdana</option>
@@ -38,30 +42,38 @@
         <!-- Velikost textu -->
         <div class="toolbar-group">
             <label>Velikost:</label>
-            <button type="button" onclick="changeFontSize(-1)">-</button>
+            <button type="button" id="btn-size-dec" title="Zmenšit velikost textu" aria-label="Zmenšit velikost textu">-</button>
             <span class="value-display" id="size-display">14 pt</span>
-            <button type="button" onclick="changeFontSize(1)">+</button>
+            <button type="button" id="btn-size-inc" title="Zvětšit velikost textu" aria-label="Zvětšit velikost textu">+</button>
         </div>
 
         <!-- Okraje -->
         <div class="toolbar-group">
             <label>Okraje:</label>
-            <button type="button" onclick="changePadding(-1)">-</button>
+            <button type="button" id="btn-padding-dec" title="Zmenšit vnitřní okraje" aria-label="Zmenšit vnitřní okraje">-</button>
             <span class="value-display" id="padding-display">6 mm</span>
-            <button type="button" onclick="changePadding(1)">+</button>
+            <button type="button" id="btn-padding-inc" title="Zvětšit vnitřní okraje" aria-label="Zvětšit vnitřní okraje">+</button>
+        </div>
+
+        <!-- Výška -->
+        <div class="toolbar-group">
+            <label>Výška:</label>
+            <button type="button" id="btn-height-dec" title="Zmenšit výšku štítků" aria-label="Zmenšit výšku štítků">-</button>
+            <span class="value-display" id="height-display">17 mm</span>
+            <button type="button" id="btn-height-inc" title="Zvětšit výšku štítků" aria-label="Zvětšit výšku štítků">+</button>
         </div>
 
         <!-- Stav -->
         <div class="toolbar-group">
-            <button type="button" onclick="saveStateToFile()" class="btn-secondary">Uložit</button>
-            <button type="button" onclick="openStateFilePicker()" class="btn-secondary">Načíst</button>
-            <button type="button" onclick="resetApp()" class="btn-danger">Reset</button>
+            <button type="button" id="btn-save" class="btn-secondary" title="Uložit aktuální stav do souboru (Ctrl+S)">Uložit</button>
+            <button type="button" id="btn-load" class="btn-secondary" title="Načíst uložený stav ze souboru">Načíst</button>
+            <button type="button" id="btn-reset" class="btn-danger" title="Vrátit aplikaci do výchozího stavu">Reset</button>
             <input type="file" id="state-file-input" accept="application/json,.json" hidden>
         </div>
 
         <!-- Tisk -->
         <div class="toolbar-group">
-            <button type="button" onclick="triggerPrint()" class="btn-primary btn-print">Tisk</button>
+            <button type="button" id="btn-print" class="btn-primary btn-print" title="Otevřít tiskový náhled">Tisk</button>
         </div>
 
         <div class="toolbar-meta">
@@ -87,5 +99,10 @@
     <!-- Propojení na externí JavaScript (musí být na konci body, aby se načetl až po vykreslení HTML) -->
     <script src="js/version.js"></script>
     <script src="js/app.js"></script>
-</body>
+
+    <noscript>
+        <div style="position:fixed;top:0;left:0;right:0;padding:16px 20px;text-align:center;font-family:sans-serif;font-size:15px;color:#b42318;background:#fff3f3;border-bottom:2px solid #f5c6cb;z-index:999;">
+            Tato aplikace vyžaduje JavaScript. Povolte JavaScript v nastavení prohlížeče.
+        </div>
+    </noscript>
 </html>

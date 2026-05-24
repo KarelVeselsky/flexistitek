@@ -9,6 +9,7 @@ const INITIAL_STATE = {
     font: "'Segoe UI', sans-serif",
     fontSize: 14,
     padding: 6,
+    cellHeight: 17,
     cells: [
         'Krátký text',
         'Středně dlouhý štítek',
@@ -19,16 +20,23 @@ const INITIAL_STATE = {
 };
 
 const MIN_FONT_SIZE = 6;
+const MAX_FONT_SIZE = 72;
 const MIN_PADDING = 0;
+const MAX_PADDING = 50;
+const MIN_CELL_HEIGHT = 5;
+const MAX_CELL_HEIGHT = 100;
+const MAX_CELL_COUNT = 200;
+const MAX_CELL_TEXT_LENGTH = 500;
 const DEFAULT_NEW_CELL_TEXT = 'Nový štítek';
-const PRINT_PAGE_HEIGHT_MM = 276;
-const PRINT_OVERFLOW_TOLERANCE_PX = 2;
+const PRINT_PAGE_HEIGHT_MM = 277;
+const PRINT_OVERFLOW_TOLERANCE_PX = 4;
 
 const grid = document.getElementById('grid');
 const root = document.documentElement;
 const fontSelect = document.getElementById('font-select');
 const sizeDisplay = document.getElementById('size-display');
 const paddingDisplay = document.getElementById('padding-display');
+const heightDisplay = document.getElementById('height-display');
 const stateFileInput = document.getElementById('state-file-input');
 const statusMessage = document.getElementById('status-message');
 const printWarning = document.getElementById('print-warning');
@@ -36,6 +44,7 @@ const appVersion = document.getElementById('app-version');
 
 let currentFontSize = INITIAL_STATE.fontSize;
 let currentPadding = INITIAL_STATE.padding;
+let currentCellHeight = INITIAL_STATE.cellHeight;
 
 function setStatus(message, state = 'info') {
     statusMessage.textContent = message;
@@ -74,11 +83,12 @@ function refreshPrintWarning() {
     const estimatedPages = estimatePrintPages();
 
     if (estimatedPages > 1) {
-        setPrintWarning('Varování: obsah se nevejde na jednu A4. Odhad tisku je ' + estimatedPages + ' strany.');
-        return estimatedPages;
+        const pagesWord = estimatedPages <= 4 ? 'strany' : 'stran';
+        setPrintWarning('Odhad tisku: ' + estimatedPages + ' ' + pagesWord + '.');
+    } else {
+        setPrintWarning('');
     }
 
-    setPrintWarning('');
     return estimatedPages;
 }
 
@@ -89,7 +99,9 @@ function sanitizeFont(font) {
 }
 
 function extractCellText(cell) {
-    return cell.textContent.replace(/\u00A0/g, ' ').trim();
+    const clone = cell.cloneNode(true);
+    clone.querySelectorAll('.cell-delete-btn').forEach((btn) => btn.remove());
+    return clone.textContent.replace(/\u00A0/g, ' ').trim();
 }
 
 function createCell(content = DEFAULT_NEW_CELL_TEXT) {
@@ -97,8 +109,23 @@ function createCell(content = DEFAULT_NEW_CELL_TEXT) {
     cell.className = 'cell';
     cell.contentEditable = 'true';
     cell.spellcheck = false;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'cell-delete-btn';
+    deleteBtn.setAttribute('contenteditable', 'false');
+    deleteBtn.title = 'Odstranit štítek';
+    deleteBtn.setAttribute('aria-label', 'Odstranit štítek');
+    deleteBtn.textContent = '×';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        deleteCell(cell);
+    });
+
     cell.innerText = content || '\u00A0';
-    addListenersToCell(cell);
+    cell.appendChild(deleteBtn);
+    addListenersToCell(cell, deleteBtn);
     return cell;
 }
 
@@ -117,21 +144,27 @@ function getAppState() {
         font: sanitizeFont(fontSelect.value),
         fontSize: currentFontSize,
         padding: currentPadding,
+        cellHeight: currentCellHeight,
         cells: Array.from(grid.querySelectorAll('.cell')).map(extractCellText)
     };
 }
 
 function applyFormatting(state) {
     const safeFont = sanitizeFont(state.font);
-    currentFontSize = Math.max(MIN_FONT_SIZE, Number(state.fontSize) || INITIAL_STATE.fontSize);
-    currentPadding = Math.max(MIN_PADDING, Number(state.padding) || INITIAL_STATE.padding);
+    currentFontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Number(state.fontSize) || INITIAL_STATE.fontSize));
+    currentPadding = Math.min(MAX_PADDING, Math.max(MIN_PADDING, Number(state.padding) || INITIAL_STATE.padding));
+    currentCellHeight = Math.min(MAX_CELL_HEIGHT, Math.max(MIN_CELL_HEIGHT,
+        Number.isFinite(Number(state.cellHeight)) ? Number(state.cellHeight) : currentCellHeight
+    ));
 
     fontSelect.value = safeFont;
     root.style.setProperty('--cell-font', safeFont);
     root.style.setProperty('--cell-font-size', currentFontSize + 'pt');
     root.style.setProperty('--cell-padding', currentPadding + 'mm');
+    root.style.setProperty('--cell-height', currentCellHeight + 'mm');
     sizeDisplay.innerText = currentFontSize + ' pt';
     paddingDisplay.innerText = currentPadding + ' mm';
+    heightDisplay.innerText = currentCellHeight + ' mm';
 }
 
 function normalizeState(rawState) {
@@ -155,7 +188,10 @@ function normalizeState(rawState) {
         font: typeof rawState.font === 'string' ? rawState.font : INITIAL_STATE.font,
         fontSize: Number.isFinite(Number(rawState.fontSize)) ? Number(rawState.fontSize) : INITIAL_STATE.fontSize,
         padding: Number.isFinite(Number(rawState.padding)) ? Number(rawState.padding) : INITIAL_STATE.padding,
-        cells: rawState.cells.map((cell) => (typeof cell === 'string' ? cell : ''))
+        cellHeight: Number.isFinite(Number(rawState.cellHeight)) ? Number(rawState.cellHeight) : INITIAL_STATE.cellHeight,
+        cells: rawState.cells
+            .slice(0, MAX_CELL_COUNT)
+            .map((cell) => (typeof cell === 'string' ? cell.slice(0, MAX_CELL_TEXT_LENGTH) : ''))
     };
 }
 
@@ -184,6 +220,8 @@ function removeLastCell() {
     const cells = grid.querySelectorAll('.cell');
     if (cells.length > 1) {
         cells[cells.length - 1].remove();
+        const remaining = grid.querySelectorAll('.cell');
+        remaining[remaining.length - 1].focus();
         refreshPrintWarning();
         setStatus('Poslední štítek byl odebrán.', 'dirty');
         return;
@@ -192,19 +230,35 @@ function removeLastCell() {
     setStatus('Musí zůstat alespoň jeden štítek.', 'error');
 }
 
-function addListenersToCell(cell) {
+function deleteCell(cell) {
+    const cells = grid.querySelectorAll('.cell');
+    if (cells.length <= 1) {
+        setStatus('Musí zůstat alespoň jeden štítek.', 'error');
+        return;
+    }
+    cell.remove();
+    refreshPrintWarning();
+    setStatus('Štítek byl odebrán.', 'dirty');
+}
+
+function addListenersToCell(cell, deleteBtn) {
     cell.addEventListener('focus', () => {
         setStatus('Upravujete obsah štítku.', 'info');
     });
 
     cell.addEventListener('input', () => {
+        if (deleteBtn && !cell.contains(deleteBtn)) {
+            cell.appendChild(deleteBtn);
+        }
         refreshPrintWarning();
         setStatus('Máte neuložené změny.', 'dirty');
     });
 
     cell.addEventListener('blur', () => {
         if (extractCellText(cell) === '') {
-            cell.innerText = '\u00A0';
+            cell.textContent = '';
+            cell.appendChild(document.createTextNode('\u00A0'));
+            if (deleteBtn) cell.appendChild(deleteBtn);
         }
     });
 }
@@ -240,21 +294,19 @@ function changePadding(delta) {
     setStatus('Okraje štítků byly upraveny.', 'dirty');
 }
 
+function changeCellHeight(delta) {
+    applyFormatting({
+        font: fontSelect.value,
+        fontSize: currentFontSize,
+        padding: currentPadding,
+        cellHeight: currentCellHeight + delta
+    });
+    refreshPrintWarning();
+    setStatus('Výška štítků byla upravena.', 'dirty');
+}
+
 function triggerPrint() {
-    const estimatedPages = refreshPrintWarning();
-
-    if (estimatedPages > 1) {
-        const confirmed = window.confirm(
-            'Obsah přesahuje jednu stranu A4. Odhad tisku je ' + estimatedPages + ' strany. ' +
-            'Při tisku bude vytištěna jen první strana A4. Chcete pokračovat?'
-        );
-
-        if (!confirmed) {
-            setStatus('Tisk byl zrušen. Upravte obsah tak, aby se vešel na jednu A4.', 'error');
-            return;
-        }
-    }
-
+    refreshPrintWarning();
     setStatus('Otevírám tiskový náhled.', 'info');
     window.print();
 }
@@ -338,6 +390,27 @@ function initializeApp() {
     document.title = 'FlexiŠtítek v' + APP_VERSION;
     refreshPrintWarning();
     setStatus('Připraveno k úpravám.', 'info');
+
+    document.getElementById('btn-add').addEventListener('click', addCell);
+    document.getElementById('btn-remove').addEventListener('click', removeLastCell);
+    document.getElementById('font-select').addEventListener('change', updateFont);
+    document.getElementById('btn-size-dec').addEventListener('click', () => changeFontSize(-1));
+    document.getElementById('btn-size-inc').addEventListener('click', () => changeFontSize(1));
+    document.getElementById('btn-padding-dec').addEventListener('click', () => changePadding(-1));
+    document.getElementById('btn-padding-inc').addEventListener('click', () => changePadding(1));
+    document.getElementById('btn-height-dec').addEventListener('click', () => changeCellHeight(-1));
+    document.getElementById('btn-height-inc').addEventListener('click', () => changeCellHeight(1));
+    document.getElementById('btn-save').addEventListener('click', saveStateToFile);
+    document.getElementById('btn-load').addEventListener('click', openStateFilePicker);
+    document.getElementById('btn-reset').addEventListener('click', resetApp);
+    document.getElementById('btn-print').addEventListener('click', triggerPrint);
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveStateToFile();
+        }
+    });
 }
 
 initializeApp();

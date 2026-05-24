@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Label shape with rounded left side -->
+  <rect x="2" y="8" width="24" height="16" rx="3" ry="3" fill="#0f6cbd"/>
+  <!-- Punch hole -->
+  <circle cx="26" cy="16" r="3" fill="#e8f2fb"/>
+  <!-- Text lines -->
+  <rect x="6" y="12" width="14" height="2.5" rx="1.2" fill="white" opacity="0.9"/>
+  <rect x="6" y="17.5" width="10" height="2.5" rx="1.2" fill="white" opacity="0.6"/>
+</svg>

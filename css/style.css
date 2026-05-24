@@ -3,6 +3,7 @@
     --cell-font: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     --cell-font-size: 14pt;
     --cell-padding: 6mm;
+    --cell-height: 17mm;
     --surface: rgba(255, 255, 255, 0.92);
     --surface-strong: #ffffff;
     --border-soft: #d6deea;
@@ -17,8 +18,6 @@
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     margin: 0;
-    min-height: 100vh;
-    padding: clamp(12px, 3vw, 28px);
     background:
         radial-gradient(circle at top left, rgba(15, 108, 189, 0.14), transparent 32%),
         linear-gradient(180deg, #edf4fb 0%, #dfe7f1 100%);
@@ -29,12 +28,24 @@ body {
     color: #152232;
 }
 
+@media screen {
+    body {
+        min-height: 100vh;
+        padding: clamp(12px, 3vw, 28px);
+    }
+}
+
 /* Nastavení pro tisk */
 @media print {
+    html {
+        height: auto;
+        min-height: 0;
+    }
+
     body {
         background: white;
+        margin: 0;
         padding: 0;
-        min-height: auto;
         display: block;
     }
 
@@ -46,24 +57,31 @@ body {
         display: block;
         width: auto;
         overflow: visible;
+        margin: 0;
         padding: 0;
     }
 
     .page-a4 {
-        width: 190mm;
-        height: 276mm;
-        min-height: 276mm;
-        overflow: hidden;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
         box-shadow: none !important;
         margin: 0 !important;
-        break-inside: avoid;
+    }
+
+    .cell {
         page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .cell-delete-btn {
+        display: none !important;
     }
 }
 
-/* Formát A4 s 10mm okraji z každé strany */
+/* Výchozí okraje stránky – velikost a orientaci lze změnit v tiskovém dialogu */
 @page {
-    size: A4 portrait;
     margin: 10mm;
 }
 
@@ -242,27 +260,35 @@ body {
 /* --- Stránka a mřížka --- */
 .page-preview {
     width: min(100%, 1100px);
-    overflow-x: auto;
-    padding-bottom: 12px;
     display: flex;
     justify-content: center;
 }
 
 .page-a4 {
-    width: 190mm;
-    min-height: 277mm;
-    flex: 0 0 auto;
     background: white;
-    box-shadow: 0 18px 45px rgba(20, 34, 50, 0.18);
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
 }
 
+@media screen {
+    .page-preview {
+        overflow-x: auto;
+        padding-bottom: 12px;
+    }
+
+    .page-a4 {
+        width: 190mm;
+        min-height: 277mm;
+        flex: 0 0 auto;
+        box-shadow: 0 18px 45px rgba(20, 34, 50, 0.18);
+    }
+}
+
 /* Styl samotné buňky */
 .cell {
     min-width: 0;
-    height: 17mm;
+    height: var(--cell-height);
     box-sizing: border-box;
     border: 1mm solid black;
     display: flex;
@@ -286,6 +312,41 @@ body {
     background: #eef7ff;
     box-shadow: inset 0 0 0 2px rgba(15, 108, 189, 0.28);
     z-index: 1;
+}
+
+.cell-delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: rgba(196, 49, 75, 0.85);
+    color: white;
+    font-size: 13px;
+    line-height: 1;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 2;
+    transition: opacity 0.15s ease, background 0.15s ease;
+    font-weight: 400;
+}
+
+.cell-delete-btn:hover {
+    background: var(--danger-strong);
+}
+
+.cell:hover .cell-delete-btn,
+.cell:focus .cell-delete-btn,
+.cell:focus-within .cell-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @media (max-width: 900px) {
