@@ -62,6 +62,7 @@ Po otevření aplikace se zobrazí náhled stránky A4 a panel s ovládacími pr
 - `Reset`: vrátí aplikaci do původního stavu včetně ukázkových štítků a výchozích hodnot
 - `Výška - / +`: sníží nebo zvýší výšku všech buněk v milimetrech
 - `Tisk`: zkontroluje, jestli se obsah vejde na jednu stranu, případně zobrazí varování, a pak vyvolá nativní dialog pro tisk v prohlížeči
+- `Verze` + odkaz `Dokumentace`: zobrazuje aktuální verzi aplikace; kliknutím na odkaz se v novém tabu otevře stránka projektu na GitHubu
 
 ### Editace štítků
 

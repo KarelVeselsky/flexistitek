@@ -440,7 +440,14 @@ function handleStateFileSelection(event) {
 function initializeApp() {
     applyAppState(INITIAL_STATE);
     stateFileInput.addEventListener('change', handleStateFileSelection);
-    appVersion.textContent = 'Verze ' + APP_VERSION;
+    appVersion.textContent = 'Verze ' + APP_VERSION + ' | ';
+    const readmeLink = document.createElement('a');
+    readmeLink.href = 'https://github.com/KarelVeselsky/flexistitek/tree/main#flexi%C5%A1t%C3%ADtek';
+    readmeLink.textContent = 'Dokumentace';
+    readmeLink.title = 'Otevřít stránku projektu na GitHubu';
+    readmeLink.target = '_blank';
+    readmeLink.rel = 'noopener noreferrer';
+    appVersion.appendChild(readmeLink);
     document.title = 'FlexiŠtítek v' + APP_VERSION;
     refreshPrintWarning();
     setStatus('Připraveno k úpravám.', 'info');

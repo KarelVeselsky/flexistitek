@@ -6,6 +6,7 @@ Všechny významné změny v projektu budou evidované v tomto souboru.
 
 ### Release Notes
 
+- v oblasti verze aplikace přibyl odkaz „Dokumentace" vedoucí na stránku projektu na GitHubu; odkaz se otevírá v novém tabu
 - přidáno plovoucí tlačítko `+ Přidat` za poslední štítek přímo v náhledu stránky pro pohodlné přidávání na mobilních zařízeních
 - po přidání nového štítku se automaticky vybere jeho výchozí text a štítek se přesune do viditelné oblasti — na mobilech se okamžitě otevře klávesnice
 - přidána podpora klávesy `Tab` uvnitř štítku: přeskočí na následující štítek a vybere celý jeho text pro okamžitý přepis; `Shift+Tab` přeskočí na předchozí štítek
